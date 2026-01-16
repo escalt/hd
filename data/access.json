@@ -1,0 +1,57 @@
+{
+  "Windows": [
+    {
+      "cmd": "Get-LocalUser",
+      "note": "Список локальных пользователей"
+    },
+    {
+      "cmd": "Get-LocalGroup",
+      "note": "Список групп"
+    },
+    {
+      "cmd": "Add-LocalGroupMember -Group {{group}} -Member {{user}}",
+      "note": "Добавить пользователя в группу",
+      "variables": ["group", "user"]
+    },
+    {
+      "cmd": "Disable-LocalUser {{user}}",
+      "note": "Заблокировать пользователя",
+      "variables": ["user"],
+      "danger": true
+    }
+  ],
+  "macOS": [
+    {
+      "cmd": "dscl . list /Users",
+      "note": "Все пользователи"
+    },
+    {
+      "cmd": "id {{user}}",
+      "note": "Информация о пользователе",
+      "variables": ["user"]
+    },
+    {
+      "cmd": "sudo dseditgroup -o edit -a {{user}} -t user admin",
+      "note": "Добавить в администраторы",
+      "variables": ["user"],
+      "danger": true
+    }
+  ],
+  "Linux": [
+    {
+      "cmd": "cat /etc/passwd",
+      "note": "Список пользователей"
+    },
+    {
+      "cmd": "groups {{user}}",
+      "note": "Группы пользователя",
+      "variables": ["user"]
+    },
+    {
+      "cmd": "usermod -aG {{group}} {{user}}",
+      "note": "Добавить в группу",
+      "variables": ["group", "user"],
+      "danger": true
+    }
+  ]
+}

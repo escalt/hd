@@ -1,0 +1,51 @@
+{
+  "Windows": [
+    {
+      "cmd": "Get-Service",
+      "note": "Список всех сервисов"
+    },
+    {
+      "cmd": "Get-Service {{name}}",
+      "note": "Статус конкретного сервиса",
+      "variables": ["name"]
+    },
+    {
+      "cmd": "Restart-Service {{name}}",
+      "note": "Перезапуск сервиса",
+      "variables": ["name"]
+    },
+    {
+      "cmd": "Set-Service {{name}} -StartupType Automatic",
+      "note": "Включить автозапуск сервиса",
+      "variables": ["name"]
+    }
+  ],
+  "macOS": [
+    {
+      "cmd": "launchctl list",
+      "note": "Все launchd сервисы"
+    },
+    {
+      "cmd": "sudo launchctl kickstart -k system/{{service}}",
+      "note": "Перезапуск системного сервиса",
+      "variables": ["service"]
+    }
+  ],
+  "Linux": [
+    {
+      "cmd": "systemctl status {{service}}",
+      "note": "Статус сервиса",
+      "variables": ["service"]
+    },
+    {
+      "cmd": "systemctl restart {{service}}",
+      "note": "Перезапуск сервиса",
+      "variables": ["service"]
+    },
+    {
+      "cmd": "systemctl enable {{service}}",
+      "note": "Включить автозапуск",
+      "variables": ["service"]
+    }
+  ]
+}

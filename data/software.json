@@ -1,0 +1,46 @@
+{
+  "Windows": [
+    {
+      "cmd": "winget list",
+      "note": "Список установленного ПО"
+    },
+    {
+      "cmd": "winget upgrade --all",
+      "note": "Обновить всё ПО",
+      "danger": true
+    },
+    {
+      "cmd": "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*",
+      "note": "ПО из реестра"
+    }
+  ],
+  "macOS": [
+    {
+      "cmd": "brew list",
+      "note": "Установленные пакеты Homebrew"
+    },
+    {
+      "cmd": "brew update && brew upgrade",
+      "note": "Обновление пакетов"
+    },
+    {
+      "cmd": "sw_vers",
+      "note": "Версия macOS"
+    }
+  ],
+  "Linux": [
+    {
+      "cmd": "apt list --installed",
+      "note": "Установленные пакеты (Debian/Ubuntu)"
+    },
+    {
+      "cmd": "apt update && apt upgrade -y",
+      "note": "Обновление системы",
+      "danger": true
+    },
+    {
+      "cmd": "uname -a",
+      "note": "Информация о системе"
+    }
+  ]
+}

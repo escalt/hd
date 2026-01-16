@@ -1,0 +1,63 @@
+{
+  "Windows": [
+    {
+      "cmd": "Get-EventLog -LogName System -Newest 50",
+      "note": "Последние системные ошибки"
+    },
+    {
+      "cmd": "Get-Process | Sort CPU -Descending | Select -First 10",
+      "note": "Топ процессов по CPU"
+    },
+    {
+      "cmd": "ping {{host}}",
+      "note": "Проверка доступности",
+      "variables": ["host"]
+    }
+  ],
+  "macOS": [
+    {
+      "cmd": "log show --predicate 'eventType == fault' --last 1h",
+      "note": "Системные ошибки за час"
+    },
+    {
+      "cmd": "top -o cpu",
+      "note": "Процессы по CPU"
+    },
+    {
+      "cmd": "ping -c 4 {{host}}",
+      "note": "Проверка сети",
+      "variables": ["host"]
+    }
+  ],
+  "Linux": [
+    {
+      "cmd": "journalctl -p 3 -xb",
+      "note": "Критические ошибки"
+    },
+    {
+      "cmd": "htop",
+      "note": "Интерактивный мониторинг"
+    },
+    {
+      "cmd": "df -h",
+      "note": "Свободное место"
+    }
+  ],
+  "Network": [
+    {
+      "cmd": "traceroute {{host}}",
+      "note": "Маршрут до хоста",
+      "variables": ["host"]
+    },
+    {
+      "cmd": "nslookup {{host}}",
+      "note": "DNS проверка",
+      "variables": ["host"]
+    },
+    {
+      "cmd": "curl -I {{url}}",
+      "note": "HTTP доступность",
+      "variables": ["url"]
+    }
+  ]
+}
