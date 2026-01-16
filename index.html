@@ -1,254 +1,43 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admins Reminder</title>
-
-<style>
-:root {
-    --bg: #f5f7fa;
-    --card: #ffffff;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --accent: #2563eb;
-    --border: #e5e7eb;
-    --success: #16a34a;
-    --danger: #dc2626;
-}
-[data-theme="dark"] {
-    --bg: #0f172a;
-    --card: #020617;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --accent: #3b82f6;
-    --border: #1e293b;
-    --danger: #f87171;
-}
-* { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif; }
-body { margin:0; padding:24px; background:var(--bg); color:var(--text); }
-.container { max-width: 1000px; margin:0 auto; }
-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-h1 { font-size:26px; margin:0; }
-.controls { display:flex; gap:10px; }
-input[type="search"] { padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); width:260px; }
-button { border:none; padding:8px 14px; border-radius:8px; cursor:pointer; background:var(--accent); color:white; font-size:14px; }
-button.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
-details { background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:14px; }
-summary { padding:16px 20px; cursor:pointer; font-size:18px; font-weight:600; display:flex; justify-content:space-between; }
-summary span { font-size:14px; color:var(--muted); font-weight:400; }
-.content { padding:16px 20px 20px; border-top:1px solid var(--border); }
-.command { display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--border); border-radius:8px; margin-bottom:10px; background:rgba(0,0,0,0.02); }
-.command.danger { border-left:4px solid var(--danger); }
-.command-row { display:flex; justify-content:space-between; gap:12px; align-items:center; }
-.command code { font-family:"JetBrains Mono", Consolas, monospace; font-size:14px; }
-.command small { display:block; font-size:12px; color:var(--muted); }
-.actions { display:flex; gap:6px; }
-.star { background:transparent; border:none; font-size:18px; cursor:pointer; }
-.star.active { color:gold; }
-input.variable { padding:4px 6px; border-radius:4px; border:1px solid var(--border); font-family:monospace; width:180px; }
-.hidden { display:none; }
-</style>
+  <meta charset="UTF-8">
+  <title>Admins Remind Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
-<div class="container">
-<header>
-<h1>Admins Remind Hub</h1>
-<div class="controls">
-<input type="search" id="search" placeholder="Поиск команды…">
-<button class="secondary" id="themeToggle">🌗</button>
-</div>
+<header class="topbar">
+  <h1>Admins Remind Hub</h1>
+  <input id="globalSearch" placeholder="Поиск команды…" />
 </header>
 
-<div id="services"></div>
-</div>
+<main class="dashboard">
+  <section class="panel" data-panel="services">
+    <h2>Services</h2>
+    <div class="panel-content"></div>
+  </section>
 
-<script>
-// Данные с переменными {{variable}}
-const servicesData=[
-{
-name:"Windows",
-description:"PowerShell и CMD команды",
-commands:[
-{cmd:"Get-Process", note:"Список процессов"},
-{cmd:"Get-Service", note:"Список сервисов"},
-{cmd:"Stop-Service {{ServiceName}}", note:"Остановить сервис", variables:["ServiceName"]},
-{cmd:"Start-Service {{ServiceName}}", note:"Запустить сервис", variables:["ServiceName"]},
-{cmd:"Get-EventLog -LogName System -Newest 50", note:"Последние события системы"},
-{cmd:"ipconfig /all", note:"Информация о сети"},
-{cmd:"ping {{host}}", note:"Проверка доступности хоста", variables:["host"]},
-{cmd:"netstat -ano", note:"Состояние портов и PID"},
-{cmd:"Remove-Item -Recurse -Force C:\\Temp\\{{FolderName}}", note:"Удаление папок (ОПАСНО)", danger:true, variables:["FolderName"]}
-]
-},
-{
-name:"macOS",
-description:"Терминал и системные команды",
-commands:[
-{cmd:"top", note:"Мониторинг процессов"},
-{cmd:"ps aux", note:"Список всех процессов"},
-{cmd:"brew list", note:"Установленные пакеты Homebrew"},
-{cmd:"launchctl list", note:"Список сервисов launchd"},
-{cmd:"df -h", note:"Свободное место на дисках"},
-{cmd:"du -sh * | sort -h", note:"Размер директорий"},
-{cmd:"sudo dscacheutil -flushcache", note:"Сброс DNS кэша"},
-{cmd:"ping -c 4 {{host}}", note:"Проверка доступности", variables:["host"]}
-]
-},
-{
-name:"Linux",
-description:"Команды для серверов",
-commands:[
-{cmd:"uptime", note:"Аптайм и load average"},
-{cmd:"htop", note:"Интерактивный мониторинг процессов"},
-{cmd:"free -h", note:"Использование памяти"},
-{cmd:"df -h", note:"Свободное место на дисках"},
-{cmd:"du -sh * | sort -h", note:"Размер директорий"},
-{cmd:"journalctl -xe", note:"Системные ошибки"},
-{cmd:"systemctl status {{service}}", note:"Статус сервиса", variables:["service"]},
-{cmd:"rm -rf /tmp/{{folder}}/*", note:"Очистка tmp (ОПАСНО)", danger:true, variables:["folder"]}
-]
-},
-{
-name:"Network",
-description:"Общие сетевые команды",
-commands:[
-{cmd:"ping {{host}}", note:"Проверка доступности", variables:["host"]},
-{cmd:"tracert {{host}}", note:"Маршрут до хоста (Windows)", variables:["host"]},
-{cmd:"traceroute {{host}}", note:"Маршрут до хоста (Linux/macOS)", variables:["host"]},
-{cmd:"nslookup {{host}}", note:"DNS lookup", variables:["host"]},
-{cmd:"curl -v {{url}}", note:"HTTP(S) проверка", variables:["url"]}
-]
-},
-{
-name:"Security / Maintenance",
-description:"Пользователи, доступ, очистка",
-commands:[
-{cmd:"whoami", note:"Текущий пользователь"},
-{cmd:"net user", note:"Список пользователей (Windows)"},
-{cmd:"dscl . list /Users", note:"Список пользователей (macOS)"},
-{cmd:"last", note:"Последние логины (Linux/macOS)"},
-{cmd:"Get-LocalUser", note:"Список локальных пользователей (PowerShell)"},
-{cmd:"Remove-Item -Recurse -Force C:\\Temp\\{{FolderName}}", note:"Очистка временных файлов (Windows) - ОПАСНО", danger:true, variables:["FolderName"]},
-{cmd:"sudo rm -rf /tmp/{{folder}}/*", note:"Очистка tmp (Linux/macOS) - ОПАСНО", danger:true, variables:["folder"]}
-]
-}];
+  <section class="panel" data-panel="software">
+    <h2>Software</h2>
+    <div class="panel-content"></div>
+  </section>
 
-const servicesEl=document.getElementById("services");
-const searchInput=document.getElementById("search");
-const themeToggle=document.getElementById("themeToggle");
-const favorites=new Set(JSON.parse(localStorage.getItem("favorites")||"[]"));
+  <section class="panel" data-panel="access">
+    <h2>Access</h2>
+    <div class="panel-content"></div>
+  </section>
 
-function render(){
-servicesEl.innerHTML="";
-servicesData.forEach(service=>{
-const details=document.createElement("details");
-const summary=document.createElement("summary");
-summary.innerHTML=`${service.name} <span>${service.description}</span>`;
-details.appendChild(summary);
-const content=document.createElement("div");
-content.className="content";
+  <section class="panel" data-panel="troubleshooting">
+    <h2>Troubleshooting / Info</h2>
+    <div class="panel-content"></div>
+  </section>
+</main>
 
-service.commands.forEach(c=>{
-const row=document.createElement("div");
-row.className="command"+(c.danger?" danger":"");
-
-const text=document.createElement("div");
-text.className="command-row";
-
-const codeEl=document.createElement("code");
-codeEl.textContent=c.cmd;
-text.appendChild(codeEl);
-
-const actions=document.createElement("div");
-actions.className="actions";
-
-const star=document.createElement("button");
-star.className="star"+(favorites.has(c.cmd)?" active":"");
-star.textContent="★";
-star.onclick=()=>toggleFavorite(c.cmd,star);
-
-const copyBtn=document.createElement("button");
-copyBtn.textContent="Копировать";
-copyBtn.onclick=()=>copyCommand(c, copyBtn);
-
-actions.append(star,copyBtn);
-text.appendChild(actions);
-
-row.appendChild(text);
-
-if(c.variables){
-c.variables.forEach(v=>{
-const input=document.createElement("input");
-input.className="variable";
-input.placeholder=v;
-input.dataset.var=v;
-row.appendChild(input);
-});
-}
-
-const note=document.createElement("small");
-note.textContent=c.note;
-row.appendChild(note);
-
-content.appendChild(row);
-});
-
-details.appendChild(content);
-servicesEl.appendChild(details);
-});
-}
-
-// Исправленная функция копирования для конкретной команды
-function copyCommand(command, btn){
-let cmdText=command.cmd;
-const commandRow = btn.closest(".command");
-
-if(command.variables && commandRow){
-command.variables.forEach(v=>{
-const input = commandRow.querySelector(`input[data-var="${v}"]`);
-if(input){
-const value = input.value || `<${v}>`;
-cmdText = cmdText.replace(`{{${v}}}`, value);
-}
-});
-}
-
-navigator.clipboard.writeText(cmdText);
-btn.textContent="✓";
-setTimeout(()=>btn.textContent="Копировать",1200);
-}
-
-function toggleFavorite(cmd,el){
-if(favorites.has(cmd)){favorites.delete(cmd);el.classList.remove("active");}
-else{favorites.add(cmd);el.classList.add("active");}
-localStorage.setItem("favorites",JSON.stringify([...favorites]));
-}
-
-searchInput.addEventListener("input",()=>{
-const q=searchInput.value.toLowerCase();
-document.querySelectorAll("details").forEach(details=>{
-let match=false;
-details.querySelectorAll(".command").forEach(cmd=>{
-const visible=cmd.innerText.toLowerCase().includes(q);
-cmd.classList.toggle("hidden",!visible);
-if(visible) match=true;
-});
-details.open=q&&match;
-details.classList.toggle("hidden",q&&!match);
-});
-});
-
-themeToggle.onclick=()=>{
-const next=document.documentElement.dataset.theme==="dark"?"light":"dark";
-document.documentElement.dataset.theme=next;
-localStorage.setItem("theme",next);
-};
-
-document.documentElement.dataset.theme=localStorage.getItem("theme")||"light";
-render();
-</script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/renderer.js"></script>
+<script src="assets/js/actions.js"></script>
+<script src="assets/js/search.js"></script>
 </body>
 </html>
-
